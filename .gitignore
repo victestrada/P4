@@ -1,0 +1,12 @@
+/*/
+/*
+
+!.gitignore
+!Makefile
+!README.md
+!img/
+!lists/
+!meson.build
+!p4_speaker.pdf
+!scripts/
+!src/
