@@ -107,8 +107,8 @@ Para implementar el sistema que se adapte mejor a las señales, hemos calculado 
   
   |                 | LP   | LPCC | MFCC |
    |------------------|:----:|:----:|:----:|
-   | COSTDETECT       |95% |  | 90.8% |
-    | MISSED       |238/250 |  | 227/250 |
+   | COSTDETECT       |95% |  | 90.4% |
+    | MISSED       |238/250 |  | 226/250 |
 
 ### Verificación del locutor.
 
@@ -119,7 +119,7 @@ Para implementar el sistema que se adapte mejor a las señales, hemos calculado 
   
   |                 | LP   | LPCC | MFCC |
   |------------------|:----:|:----:|:----:|
-  | ERROR_RATE      |15.92%|82.29|11.72%|
+  | ERROR_RATE      |15.92%|82.29|14.65%|
  
 ### Test final y trabajo de ampliación.
 
