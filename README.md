@@ -18,58 +18,97 @@ que los ficheros entregados deberán estar en condiciones de ser ejecutados con 
   run_spkid mfcc train test classerr verify verifyerr
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A modo de memoria de la práctica, complete, en este mismo documento y usando el formato *markdown*, los
-ejercicios indicados.
-
 ## Ejercicios.
 
 ### Extracción de características.
 
 - Escriba el *pipeline* principal usado para calcular los coeficientes cepstrales de predicción lineal
-  (LPCC), en su fichero <code>scripts/wav2lpcc.sh</code>:
-
+  (LP), en el fichero <code>scripts/wav2lp.sh</code>:
+  
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.sh
-# A modo de ejemplo de cómo incorporar código fuente a un fichero markdown, el pipeline siguiente
-# es el usado para calcular los coeficientes de predicción lineal (LP) en el script wav2lp.sh:
+
 sox $inputfile -t raw - | $X2X +sf | $FRAME -l 400 -p 80 | $WINDOW -l 400 -L 400 |
         $LPC -l 400 -m $lpc_order > $base.lp
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
+- Escriba el *pipeline* principal usado para calcular los coeficientes cepstrales de predicción lineal
+  (LPCC), en su fichero <code>scripts/wav2lpcc.sh</code>:
+  
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.sh
+sox $inputfile -t raw - dither -p12 | $X2X +sf | $FRAME -l 200 -p 40 | $WINDOW -l 200 | 
+        $LPC -l 200 -m $lpc_order | $LPC2C -m $lpc_order -M $nceps > $base.cep
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+
 - Escriba el *pipeline* principal usado para calcular los coeficientes cepstrales en escala Mel (MFCC), en
   su fichero <code>scripts/wav2mfcc.sh</code>:
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.sh
+sox $inputfile -t raw - dither -p12 | $X2X +sf | $FRAME -l 200 -p 40 | 
+        $MFCC -l 200 -m $mfcc_order -s 8000 -n $ncoef > $base.mfcc
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 - Indique qué parámetros considera adecuados para el cálculo de los coeficientes LPCC y MFCC.
+
+LPCC:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.sh
+EXEC="wav2lpcc 13 10 $db/$filename.wav $w/$FEAT/$filename.$FEAT"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Hemos decidido por prueva i error consiguiendo un aceptable error_rate un orden de lpc de 13 i el número de cepstrums = 10. Por otro lado, para el cálculo de los coeficientes
+
+MFCC:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.sh
+EXEC="wav2mfcc 13 14 $db/$filename.wav $w/$FEAT/$filename.$FEAT"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+En este caso usamos un orden de mfcc de 13 por ser de forma generalizada óptimo y 14 coefs. También por prueba y error, obtenemos un error_rate de 11%. Bastante buen resultado.
 
 - Inserte una imagen mostrando la dependencia entre los coeficientes 2 y 3 de las tres parametrizaciones
   para una señal de prueba.
   
-  *La imagen siguiente es un ejemplo de cómo insertar imágenes en markdown*
+  Parametrización LP
   
-  <img src="img/tanh.png" width="640" align="center">
+  <img src="lpcoef.png" width="640" align="center">
+  
+  Parametrización MFCC
+  
+  <img src="mfcccoef.png" width="640" align="center">
+  
+  Parametrización LPCC
+  
+  <img src="lpcccoef.png" width="640" align="center">
   
   + ¿Cuál de ellas le parece que contiene más información?
-
-- Usando el programa <code>pearson</code>, obtenga los coeficientes de correlación normalizada entre los
-  parámetros 2 y 3, y rellene la tabla siguiente con los valores obtenidos.
-
-  |                        | LP   | LPCC | MFCC |
-  |------------------------|:----:|:----:|:----:|
-  | &rho;<sub>x</sub>[2,3] |      |      |      |
   
-  + Compare los resultados de <code>pearson</code> con los obtenidos gráficamente.
+De entre las 3 opciones, observamos que los coeficientes mel-cepstrum és la representación que muestra más información. Esto es así porqué el cepstrum concentra la información del trozo de señal analizado en un numero reducido de muestras y tiene coeficientes más incorrelados que en los demas casos. Esto hará que en el momento de clasificación habrá menos redundancia. También cal mencionar que al calcular los coeficientes Mel, se da importancia a unas determinadas frecuencias que tienen más importancia a nivel de percepción del sistema auditivo humano.
   
 ### Entrenamiento y visualización de los GMM.
 
 - Inserte una gráfica que muestre la función de densidad de probabilidad modelada por el GMM de un locutor
   para sus dos primeros coeficientes de MFCC.
   
+  <img src="gmmlocutor.png">
+  
 - Inserte una gráfica que permita comparar los modelos y poblaciones de dos locutores distintos. Comente el
   resultado obtenido y discuta si el modelado mediante GMM permite diferenciar las señales de uno y otro.
+  
+  <img src="gmmlocutor2.png">
+  
+La imagen corresponde a la GMM obtenida de un locutor distinto de la pregunta anterior. Como podemos ver si comparamos las dos gráficas se diferencian.
+
+Para implementar el sistema que se adapte mejor a las señales, hemos calculado los MFCC de forma que se reduce considerablemente el conjunto de datos de salida. Esta salida se representa a partir de sus direcciones de máxima varianza Cuando hemos obtenido todas las características, se procede a hacer la parametrización que se hace a partir de un conjunto de gaussianas. A partir de la relación entre la parametrización y los datos podemos diferenciar las señales de cada uno de los locutores. En función de la probabilidad por la que decidir, el modelo más parecido.
 
 ### Reconocimiento del locutor.
 
 - Inserte una tabla con la tasa de error obtenida en el reconocimiento de los locutores de la base de datos
   SPEECON usando su mejor sistema de reconocimiento para los parámetros LP, LPCC y MFCC.
+  
+  |                 | LP   | LPCC | MFCC |
+   |------------------|:----:|:----:|:----:|
+   | COSTDETECT       |95% |  | 90.8% |
+    | MISSED       |238/250 |  | 227/250 |
 
 ### Verificación del locutor.
 
@@ -77,6 +116,10 @@ sox $inputfile -t raw - | $X2X +sf | $FRAME -l 400 -p 80 | $WINDOW -l 400 -L 400
   de verificación de SPEECON. La tabla debe incluir el umbral óptimo, el número de falsas alarmas y de
   pérdidas, y el score obtenido usando la parametrización que mejor resultado le hubiera dado en la tarea
   de reconocimiento.
+  
+  |                 | LP   | LPCC | MFCC |
+  |------------------|:----:|:----:|:----:|
+  | ERROR_RATE      |15.92%|82.29|11.72%|
  
 ### Test final y trabajo de ampliación.
 
