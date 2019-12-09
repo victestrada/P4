@@ -82,7 +82,8 @@ En este caso usamos un orden de mfcc de 13 por ser de forma generalizada óptimo
   
   + ¿Cuál de ellas le parece que contiene más información?
   
-De entre las 3 opciones, observamos que los coeficientes mel-cepstrum és la representación que muestra más información. Esto es así porqué el cepstrum concentra la información del trozo de señal analizado en un numero reducido de muestras y tiene coeficientes más incorrelados que en los demas casos. Esto hará que en el momento de clasificación habrá menos redundancia. También cal mencionar que al calcular los coeficientes Mel, se da importancia a unas determinadas frecuencias que tienen más importancia a nivel de percepción del sistema auditivo humano.
+  
+La representación del mel-cepstrum és la que muestra la información más completa, debito a que este oncentra la información del trozo de señal analizado en un numero reducido de muestras y tiene coeficientes más incorrelados que en los demas casos. Por lo tanto,en el momento de la clasificación habrá menos redundancia. 
   
 ### Entrenamiento y visualización de los GMM.
 
@@ -96,9 +97,7 @@ De entre las 3 opciones, observamos que los coeficientes mel-cepstrum és la rep
   
   <img src="gmmlocutor2.png">
   
-La imagen corresponde a la GMM obtenida de un locutor distinto de la pregunta anterior. Como podemos ver si comparamos las dos gráficas se diferencian.
-
-Para implementar el sistema que se adapte mejor a las señales, hemos calculado los MFCC de forma que se reduce considerablemente el conjunto de datos de salida. Esta salida se representa a partir de sus direcciones de máxima varianza Cuando hemos obtenido todas las características, se procede a hacer la parametrización que se hace a partir de un conjunto de gaussianas. A partir de la relación entre la parametrización y los datos podemos diferenciar las señales de cada uno de los locutores. En función de la probabilidad por la que decidir, el modelo más parecido.
+La imagen corresponde a la GMM obtenida de un locutor distinto de la pregunta anterior. Como podemos ver si comparamos las dos gráficas se diferencian en la probabilidad de decisión. La salida se representa con las direcciones de máxima varianza. Una vez obtenidas las características se hace la parametrización a partir de las fdp gaussianas.
 
 ### Reconocimiento del locutor.
 
